@@ -1,1 +1,1 @@
-# NEAT-Nueral-Net-Frogger
+# NEAT-Neural-Net-Frogger
