@@ -280,6 +280,7 @@ class Frog(pygame.sprite.Sprite):
         self.dead = True
         Population.frogs_alive -= 1
         print('Frogs alive: ' + str(Population.frogs_alive))
+        print('Frogs Distance: ' + str(self.rect.y))
 
 
 class Log(pygame.sprite.Sprite):
@@ -461,7 +462,7 @@ while not done:
         pop.killAll()
         pop.selection()
         reset()
-        time.sleep(1)
+        time.sleep(100)
         frame_count = 0;
 
     print (total_seconds) #print how many seconds
