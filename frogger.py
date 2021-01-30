@@ -39,8 +39,8 @@ backgroundImg = pygame.transform.scale2x(pygame.image.load('sprites/background.g
 frogsNum = 100  # Number of frogs spawned per generation
 done = False   # Application is still running
 turtleCounter = 0  # Timer for turtle state
-fps = 1  # Simulation speed (actions per second)
-
+fps = 5  # Simulation speed (actions per second)
+frame_count = 0
 
 
 # Classes
@@ -114,6 +114,13 @@ class Population:
                 b = Brain(1000, d)
                 frogs.add(Frog(335, 700, self.size, b))
             Population.frogs_alive = 1
+
+    def killAll(self):
+        print("-------------- TIME RAN OUT ----- ")
+        for i in frogs:
+            if i.dead is False:
+                i.die()
+
 
     # Determining the best frog from the previous generation and returning its directions
     def bestFrog(self):
@@ -432,6 +439,7 @@ def message_display(text):
 pop = Population(frogsNum, 1000)
 reset()
 
+
 # Event handling loop (game loop)
 while not done:
     for event in pygame.event.get():
@@ -439,13 +447,24 @@ while not done:
             done = True
 
     screen.blit(backgroundImg, (0, 0))
-    
 
     # If all frogs are dead, reset game board
     if (Population.frogs_alive == 0):
         pop.selection()
         reset()
         time.sleep(1)
+
+            
+    total_seconds = frame_count // fps
+
+    if total_seconds > 2:
+        pop.killAll()
+        pop.selection()
+        reset()
+        time.sleep(1)
+        frame_count = 0;
+
+    print (total_seconds) #print how many seconds
 
     message_display('generation: ' + str(pop.generation))
     all_sprites.update()
@@ -477,6 +496,8 @@ while not done:
                         t.image = turtleTwoImg
                     else:
                         t.image = turtleThreeImg
+
+    frame_count+=1
 
 pygame.quit()
 quit()
