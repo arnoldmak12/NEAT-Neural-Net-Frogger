@@ -1,8 +1,8 @@
 class NNData(object):
     def __init__(self):
-        self.struct_scale = 6
+        self.struct_scale = 1
         self.weight_scale = 2
-        self.diff_threshold = 1.8
+        self.diff_threshold = 1.5
         global next_innov
         next_innov = 1
 
