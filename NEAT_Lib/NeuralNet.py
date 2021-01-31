@@ -86,9 +86,9 @@ class NeuralNet():
     def mutate(self):
         if np.random.random() < 0.9:
             self.mutate_weights()
-        if np.random.random() < 0.07:
+        if np.random.random() < 0.06:
             self.add_connection()
-        if np.random.random() < 0.02:
+        if np.random.random() < 0.015:
             self.add_node()
 
 
@@ -97,8 +97,8 @@ class NeuralNet():
             seed = np.random.random()
             if seed < 0.1:
                 c.weight = np.random.randn()
-            elif seed < 0.75:
-                c.weight += 3*np.random.random() - 1.5
+            elif seed < 0.5:
+                c.weight += 2*np.random.random() - 1
         #print("Mutating Weights!")
 
 
