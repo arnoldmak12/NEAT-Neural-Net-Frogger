@@ -102,31 +102,43 @@ class Population(object):
 
     
     
+    def top_pop(self, num):
+        order = []
+        nums = []
+        for k in range(len(self.networks)):
+            n = self.networks[k]
+            nums.append(n.fitness)
+        for i in range(num):
+            max_index = nums.index(max(nums))
+            nums[max_index] = -100000
+            order.append(copy.deepcopy(self.networks[max_index]))
+        return order
+    
+    
     def order_species(self, avg_fit):
         order = []
         nums = []
-        for s in self.species:
-            nums.append(self.find_best_member(s).fitness)
+        for k in range(len(self.species)):
+            s = self.species[k]
+            nums.append((self.avg_fitness(s) * len(s) / avg_fit))
         for i in range(len(nums)):
             max_index = nums.index(max(nums))
             nums[max_index] = -100000
-            order.append(self.species[max_index])
+            order.append(copy.deepcopy(self.species[max_index]))
         return order
     
     
     def prepare_next_gen(self):
         avg_fit = self.avg_fitness(self.networks)
-        new_pop = []
-        num_left = self.pop_size
+        new_pop = self.top_pop(50)
+        num_left = self.pop_size - 50
         species_list = self.order_species(avg_fit)
         counter = 0
         for s in species_list:
             if num_left > 0:
                 counter+=1
-                best = self.find_best_member(s)
-                new_pop.append(best)
-                num_offspring = max(round(self.avg_fitness(s) * len(s) / avg_fit), 1) - 1
-                num_left -= (num_offspring+1)
+                num_offspring = max(math.ceil(self.avg_fitness(s) * len(s) / avg_fit), 1)
+                num_left -= (num_offspring)
                 if num_left < 0:
                     num_offspring += num_left
                     print("-----------------------------BREAK (" + str(counter) + ")------------------------------")
