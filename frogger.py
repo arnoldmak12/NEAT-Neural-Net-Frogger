@@ -36,7 +36,7 @@ turtleThreeDownImg = pygame.transform.scale2x(pygame.image.load('sprites/turtlet
 
 backgroundImg = pygame.transform.scale2x(pygame.image.load('sprites/background.gif'))
 
-frogsNum = 100  # Number of frogs spawned per generation
+frogsNum = 1  # Number of frogs spawned per generation
 done = False   # Application is still running
 turtleCounter = 0  # Timer for turtle state
 fps = 5  # Simulation speed (actions per second)
@@ -69,7 +69,7 @@ class Population:
                 directions.append(randomNum)
 
             b = Brain(1000, directions)
-            frogs.add(Frog(335, 700, self.size, b))
+            frogs.add(Frog(335, 550, self.size, b))######################################################################################################################
 
     # Randomly selecting a parent frog from previous generation
     def selectParent(self):
@@ -238,6 +238,12 @@ class Frog(pygame.sprite.Sprite):
         self.rect.y = ypos
         self.size = size
         self.brain = brain
+        self.stabilityUp = stability(self.rect.x, self.rect.y - 50)
+        self.stabilityDown = 0
+        self.stabilityRight = stability(self.rect.x + 50, self.rect.y)
+        self.stabilityLeft = stability(self.rect.x - 50, self.rect.y)
+        self.stabilityCurrent = stability(self.rect.x, self.rect.y)
+        
 
     # Update frog position
     def update(self):
@@ -273,6 +279,12 @@ class Frog(pygame.sprite.Sprite):
             self.fitness = 13
             self.dead = True
             Population.frogs_alive -= 1
+
+        self.stabilityUp = stability(self.rect.x, self.rect.y - 50)
+        self.stabilityDown = stability(self.rect.x, self.rect.y + 50)
+        self.stabilityRight = stability(self.rect.x + 50, self.rect.y)
+        self.stabilityLeft = stability(self.rect.x - 50, self.rect.y)
+        self.stabilityCurrent = stability(self.rect.x, self.rect.y)
 
     # If the frog dies
     def die(self):
@@ -371,6 +383,8 @@ class Car(pygame.sprite.Sprite):
 # Randomly mutates the direction vectors of the given frog
 
 
+
+
 def mutate(d):
     for i in range(0, len(d)):
         randomNum = random.randint(0, 4)
@@ -378,9 +392,93 @@ def mutate(d):
             d[i] = random.randint(0, 4)
     return d
 
+
+def stability(x, y):
+    stability = 0
+
+    if y == 700 or y == 400:
+        stability = 1
+
+    elif y == 650 or y == 550:
+        leftSide = 1
+        rightSide = 0
+
+        # This checks cars on current space, since cars traveling left, if none directly there, its perfectly safe
+        for s in all_sprites:
+            if s.rect.y == y:
+                if x > (s.rect.x - 25) and x < (s.rect.x + 25):
+                    leftSide = 0
+        
+
+        # This checks cars on right, since cars traveling left, looks for closest car to the frog
+        foundObject = False
+        tempX = x
+        while foundObject is False and tempX < 700:
+            tempX += 50
+            for s in all_sprites:
+                if s.rect.y == y:
+                    if tempX > (s.rect.x - 25) and tempX < (s.rect.x + 25):
+                        rightSide = (tempX - x) / 50
+                        foundObject = True
+
+        stability = 0 if leftSide == 0 else rightSide / 10 ######################################## CHNAGE THIS ##########################
+            
+    elif y == 600 or y == 500:
+        leftSide = 0
+        rightSide = 1
+
+        # This checks cars on current space, since cars traveling right, if none directly there, its perfectly safe
+        for s in all_sprites:
+            if s.rect.y == y:
+                if x > (s.rect.x - 25) and x < (s.rect.x + 25):
+                    rightSide = 0
+        
+
+        # This checks cars on left, since cars traveling right, looks for closest car to the frog
+        foundObject = False
+        tempX = x
+        while foundObject is False and tempX > 0:
+            tempX -= 50
+            for s in all_sprites:
+                if s.rect.y == y:
+                    if tempX > (s.rect.x - 25) and tempX < (s.rect.x + 25):
+                        leftSide = abs((tempX - x)) / 50
+                        foundObject = True
+                        
+
+        stability = 0 if rightSide == 0 else leftSide / 10 ######################################## CHNAGE THIS ##########################            
+
+
+    elif y == 450:
+        leftSide = 1
+        rightSide = 0
+
+        # This checks cars on current space, since cars traveling left, if none directly there, its perfectly safe
+        for s in all_sprites:
+            if s.rect.y == y:
+                if x > (s.rect.x - 50) and x < (s.rect.x + 50):
+                    leftSide = 0
+        
+
+        # This checks cars on right, since cars traveling left, looks for closest car to the frog
+        foundObject = False
+        tempX = x
+        while foundObject is False and tempX < 700:
+            tempX += 50
+            for s in all_sprites:
+                if s.rect.y == y:
+                    if tempX > (s.rect.x - 50) and tempX < (s.rect.x + 50):
+                        rightSide = (tempX - x) / 50
+                        foundObject = True
+
+        stability = 0 if leftSide == 0 else rightSide / 10 ######################################## CHNAGE THIS ##########################
+
+
+    print("STAB at y-cord " + str(y) + "is: " + str(stability))
+    return stability
+    
+
 # Reset game board
-
-
 def reset():
     for r in turtles:
         r.kill()
@@ -453,19 +551,20 @@ while not done:
     if (Population.frogs_alive == 0):
         pop.selection()
         reset()
-        time.sleep(1)
+        time.sleep(300)
+        frame_count = 0;
 
             
     total_seconds = frame_count // fps
 
-    if total_seconds > 2:
+    if total_seconds > 10:
         pop.killAll()
         pop.selection()
         reset()
-        time.sleep(100)
+        time.sleep(300)
         frame_count = 0;
 
-    print (total_seconds) #print how many seconds
+    #(print (total_seconds) print how many seconds */
 
     message_display('generation: ' + str(pop.generation))
     all_sprites.update()
