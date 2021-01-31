@@ -5,6 +5,6 @@ Video - https://youtu.be/8g5fjMBPA_M
 
 
 ## Authors
-Jaewook Lee
-Arnold Makarov
-Jacob Maxson
+- Jaewook Lee
+- Arnold Makarov
+- Jacob Maxson
