@@ -3,6 +3,7 @@ Everyone loves the classic game Frogger, right? Well, we created a Neural Net im
 
 Video - https://youtu.be/8g5fjMBPA_M
 
+![Image of Frogger](FroggerThumbnail.PNG)
 
 ## Authors
 - Jaewook Lee
