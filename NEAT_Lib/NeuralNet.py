@@ -86,9 +86,9 @@ class NeuralNet():
     def mutate(self):
         if np.random.random() < 0.9:
             self.mutate_weights()
-        if np.random.random() < 0.1:
+        if np.random.random() < 0.07:
             self.add_connection()
-        if np.random.random() < 0.05:
+        if np.random.random() < 0.02:
             self.add_node()
 
 
@@ -163,12 +163,14 @@ class NeuralNet():
         self.next_id += 1
 
         c1 = Connection(con.input_id, new_node.id, self.data.get_innov())
+        c1.weight = con.weight
         self.connection_list.append(c1)
         input_n.connections.append(c1)
         self.add_and_sort_nodes(input_n.id, new_node.id)
         self.data.increment_innov()
 
         c2 = Connection(new_node.id, con.output_id, self.data.get_innov())
+        c2.weight = con.weight
         self.connection_list.append(c2)
         new_node.connections.append(c2)
         self.add_and_sort_nodes(new_node.id, output_n.id)
