@@ -58,7 +58,7 @@ class Frogger():
 
     def killAll(self):
         print("-------------- TIME RAN OUT ----- ")
-        for i in self.frogs:
+        for i in self.game_data.get_frogs():
             if i.dead is False:
                 i.die()
         return
@@ -87,6 +87,7 @@ class Frogger():
             self.total_seconds = self.game_data.get_frame_count() // self.fps
 
             if self.total_seconds > 5:
+                self.killAll()
                 self.done = True
 
             #message_display('generation: ' + str(pop.generation))
@@ -199,6 +200,7 @@ class Frogger():
             self.game_data = data
             self.image = pygame.Surface((50, 50))
             self.score = 0
+            self.highest_dist = 0
             self.rect = self.image.get_rect()
             self.image = self.game_data.frogUpImg
             self.rect.x = xpos
@@ -257,7 +259,9 @@ class Frogger():
                                 rightSide = (tempX - x) / 50
                                 foundObject = True
 
-                stability = 0 if leftSide == 0 else rightSide / 10 ######################################## CHNAGE THIS ##########################
+                if rightSide > 5:
+                    rightSide = 5
+                stability = 0 if leftSide == 0 else rightSide / 5 ######################################## CHNAGE THIS ##########################
             
             elif y == 600 or y == 500:
                 leftSide = 0
@@ -282,7 +286,9 @@ class Frogger():
                                 foundObject = True
                         
 
-                stability = 0 if rightSide == 0 else leftSide / 10 ######################################## CHNAGE THIS ##########################            
+                if leftSide > 5:
+                    leftSide = 5
+                stability = 0 if rightSide == 0 else leftSide / 5 ######################################## CHNAGE THIS ##########################            
 
 
             elif y == 450:
@@ -307,7 +313,9 @@ class Frogger():
                                 rightSide = (tempX - x) / 50
                                 foundObject = True
 
-                stability = 0 if leftSide == 0 else rightSide / 10 ######################################## CHNAGE THIS ##########################
+                if rightSide > 5:
+                    rightSide = 5
+                stability = 0 if leftSide == 0 else rightSide / 5 ######################################## CHNAGE THIS ##########################
 
 
             elif y == 350 or y == 200:
@@ -345,11 +353,14 @@ class Frogger():
 
             inputs = [self.stabilityUp, self.stabilityRight, self.stabilityDown, self.stabilityLeft, self.stabilityCurrent]
             dist = max(700-self.rect.y, 0)
-            distances = [(dist-50/14.0), dist/14.0, (dist+50)/14.0, dist/14.0, dist/14.0]
+            bonus_dist = max(750-self.rect.y, 0)
+            if dist > self.highest_dist:
+                self.highest_dist = dist
+            distances = [(dist+50)/30.0, dist/30.0, (dist-50)/30.0, dist/30.0, dist/30.0]
             inputs.extend(distances)
             values = self.brain.forward_prop(inputs)
             result = values.index(max(values))
-            bonus = (dist/50)*self.game_data.get_frame_count()/20.0
+            bonus = (bonus_dist/10)*self.game_data.get_frame_count()/(2000.0*50)
             if result == 0:
                 self.rect.y -= 50
             elif result == 1:
@@ -362,8 +373,8 @@ class Frogger():
             if self.rect.x < 0 or self.rect.x > 700 or self.rect.y < 0 or self.rect.y > 800:
                 self.die()
 
-            if result != 4:
-                self.score += bonus
+            #if result != 4:
+            self.score += bonus
 
             # If frog is in the river
             if self.rect.y <= 350 and self.rect.y != 100 and self.dead == False:
@@ -372,7 +383,7 @@ class Frogger():
                     if x.rect.colliderect(self):
                         crash = True
                         break
-                for x in turtles:
+                for x in self.game_data.get_turtles():
                     if x.rect.colliderect(self):
                         crash = True
                         break
@@ -391,7 +402,7 @@ class Frogger():
 
         # If the frog dies
         def die(self):
-            self.score += max(700-self.rect.y, 0)
+            self.score += self.highest_dist/50.0
             self.image = self.game_data.frogDead
             self.dead = True
             self.rect.x = -100
