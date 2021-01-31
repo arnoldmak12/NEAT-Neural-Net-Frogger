@@ -69,7 +69,7 @@ class Population:
                 directions.append(randomNum)
 
             b = Brain(1000, directions)
-            frogs.add(Frog(200, 300, self.size, b))######################################################################################################################
+            frogs.add(Frog(500, 150, self.size, b))######################################################################################################################
 
     # Randomly selecting a parent frog from previous generation
     def selectParent(self):
@@ -399,8 +399,21 @@ def stability(x, y):
     if y == 700 or y == 400:
         stability = 1
 
-    elif x < 0 or x > 700 or y < 0 or y > 800:
+    elif x < 0 or x > 700 or y < 100 or y > 800:
         stability = 0
+
+    elif y == 100:
+        if x >= 80 and x <= 170:
+            stability = 1
+
+        elif x >= 230 and x <= 320:
+            stability = 1
+
+        elif x >= 380 and x <= 470:
+            stability = 1
+
+        elif x >= 530 and x <= 620:
+            stability = 1
 
     elif y == 650 or y == 550:
         leftSide = 1
