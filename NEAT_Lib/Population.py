@@ -16,7 +16,7 @@ class Population(object):
         master_parent.reset_neural_net()
         self.reference = copy.deepcopy(master_parent)
         self.networks = [master_parent]
-        for i in range(math.floor(pop_size/3)):
+        for i in range(math.floor(pop_size)):
             net = copy.deepcopy(master_parent)
             net.randomize()
             net.mutate()
@@ -28,6 +28,8 @@ class Population(object):
         sum = 0
         for net in s:
             sum += net.fitness
+            if net.fitness < 0:
+                print(sum)
         return sum
 
     def avg_fitness(self, s):
@@ -60,12 +62,13 @@ class Population(object):
         for net in pop:
             species_found = False
             for s in species:
-                if(len(s) > 0):
-                    rep = s[np.random.randint(0, len(s))]
-                    if(self.calc_difference(net, rep) < self.data.diff_threshold):
-                        s.append(net)
-                        species_found = True
-                        break
+                if not species_found:
+                    if(len(s) > 0):
+                        rep = s[np.random.randint(0, len(s))]
+                        if(self.calc_difference(net, rep) < self.data.diff_threshold):
+                            s.append(net)
+                            species_found = True
+                            break
             if not species_found:
                 species.append([net])
         return species
@@ -103,7 +106,7 @@ class Population(object):
         order = []
         nums = []
         for s in self.species:
-            nums.append(max(math.ceil(self.avg_fitness(s) * len(s) / avg_fit), 1))
+            nums.append(self.find_best_member(s).fitness)
         for i in range(len(nums)):
             max_index = nums.index(max(nums))
             nums[max_index] = -100000
@@ -113,20 +116,20 @@ class Population(object):
     
     def prepare_next_gen(self):
         avg_fit = self.avg_fitness(self.networks)
-        if math.ceil(avg_fit) == 0:
-            avg_fit = 0.01
         new_pop = []
         num_left = self.pop_size
         species_list = self.order_species(avg_fit)
+        counter = 0
         for s in species_list:
             if num_left > 0:
+                counter+=1
                 best = self.find_best_member(s)
                 new_pop.append(best)
-                num_offspring = max(math.ceil(self.avg_fitness(s) * len(s) / avg_fit), 1) - 1
+                num_offspring = max(round(self.avg_fitness(s) * len(s) / avg_fit), 1) - 1
                 num_left -= (num_offspring+1)
                 if num_left < 0:
                     num_offspring += num_left
-                    print("-----------------------------BREAK (" + str(num_offspring) + ")------------------------------")
+                    print("-----------------------------BREAK (" + str(counter) + ")------------------------------")
                 new_members = []
                 for i in range(num_offspring):
                     parent1 = self.choose_parent(s)
