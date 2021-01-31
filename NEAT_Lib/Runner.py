@@ -15,7 +15,7 @@ def generate_sample_data(size):
     return data
 
 
-pop = Population(10, 5, 300, NNData())
+pop = Population(10, 5, 350, NNData())
 
 pop.simulate_generations(100)
 
