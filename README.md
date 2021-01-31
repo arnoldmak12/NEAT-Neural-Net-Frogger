@@ -20,6 +20,6 @@ This project was built with Python, NumPy, and PyGame.
 A next step would include deploying the neural network with Frogger so that a download would not be necessary in order to see it play. Additionally, we can continue to further fine-tune the hyperparameters so that the model learns how to play faster.
 
 ## Authors
-- Jaewook Lee
-- Arnold Makarov
-- Jacob Maxson
+* [Arnold Makarov](https://www.linkedin.com/in/arnoldmakarov/) - The Ohio State University
+* [Jacob Maxson](https://www.linkedin.com/in/jacob-maxson-63869018a/) - The Ohio State University
+* Jaewook Lee - The Ohio State University
