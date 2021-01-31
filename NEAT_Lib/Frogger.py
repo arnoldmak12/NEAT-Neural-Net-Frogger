@@ -86,7 +86,7 @@ class Frogger():
             
             self.total_seconds = self.game_data.get_frame_count() // self.fps
 
-            if self.total_seconds > 5:
+            if self.total_seconds > 7:
                 self.killAll()
                 self.done = True
 
@@ -139,7 +139,7 @@ class Frogger():
         self.frogsNum = 200  # Number of frogs spawned per generation
         self.done = False   # Application is still running
         self.turtleCounter = 0  # Timer for turtle state
-        self.fps = 30  # Simulation speed (actions per second)
+        self.fps = 20  # Simulation speed (actions per second)
 
 
     # Classes
@@ -322,21 +322,23 @@ class Frogger():
                 for t in self.game_data.get_turtles():
                     if t.rect.y == y:
                         if x > (t.rect.x - ((t.size * 50 - 25) / 2)) and x < (t.rect.x + ((t.size * 50 - 25) / 2)) and t.state == 0:
-                            stability = x / 700
+                            stability = x / 100
 
             elif y == 300 or y == 250 or 150:
                 for s in self.game_data.get_all_sprites():
                     if s.rect.y == y:
                         if s.size == 'short':
                             if x > (s.rect.x - ((100 - 25) / 2)) and x < (s.rect.x + ((100 - 25) / 2)):
-                                stability = 1 - (x / 700)
+                                stability = 1 - ((x-600) / 100)
                         if s.size == 'medium':
                             if x > (s.rect.x - ((150 - 25) / 2)) and x < (s.rect.x + ((150 - 25) / 2)):
-                                stability = 1 - (x / 700)
+                                stability = 1 - ((x-600) / 100)
                         if s.size == 'long':
                             if x > (s.rect.x - ((275 - 25) / 2)) and x < (s.rect.x + ((275 - 25) / 2)):
-                                stability = 1 - (x / 700)
+                                stability = 1 - ((x-600) / 100)
 
+            if stability > 1:
+                stability = 1
             #print("STAB at y-cord " + str(y) + "is: " + str(stability))
             return stability    
             
@@ -356,11 +358,11 @@ class Frogger():
             bonus_dist = max(750-self.rect.y, 0)
             if dist > self.highest_dist:
                 self.highest_dist = dist
-            distances = [(dist+50)/30.0, dist/30.0, (dist-50)/30.0, dist/30.0, dist/30.0]
-            inputs.extend(distances)
+            #distances = [(dist+50)/30.0, dist/30.0, (dist-50)/30.0, dist/30.0, dist/30.0]
+            #inputs.extend(distances)
             values = self.brain.forward_prop(inputs)
             result = values.index(max(values))
-            bonus = (bonus_dist/10)*self.game_data.get_frame_count()/(2000.0*50)
+            bonus = (bonus_dist/10)*self.game_data.get_frame_count()/(4000.0*50)
             if result == 0:
                 self.rect.y -= 50
             elif result == 1:
