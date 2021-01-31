@@ -39,7 +39,7 @@ backgroundImg = pygame.transform.scale2x(pygame.image.load('sprites/background.g
 frogsNum = 1  # Number of frogs spawned per generation
 done = False   # Application is still running
 turtleCounter = 0  # Timer for turtle state
-fps = 5  # Simulation speed (actions per second)
+fps = 2  # Simulation speed (actions per second)
 frame_count = 0
 
 
@@ -69,7 +69,7 @@ class Population:
                 directions.append(randomNum)
 
             b = Brain(1000, directions)
-            frogs.add(Frog(335, 550, self.size, b))######################################################################################################################
+            frogs.add(Frog(200, 300, self.size, b))######################################################################################################################
 
     # Randomly selecting a parent frog from previous generation
     def selectParent(self):
@@ -252,12 +252,12 @@ class Frog(pygame.sprite.Sprite):
             if self.brain.directions[stepNum] == 1:
                 self.rect.y -= 50
                 self.fitness += 1
-            elif self.brain.directions[stepNum] == 2 and self.rect.y < 375:
+            elif self.brain.directions[stepNum] == 2 and self.rect.y < 750:
                 self.rect.y += 50
                 self.fitness -= 1
-            elif self.brain.directions[stepNum] == 3 and self.rect.x > 25:
+            elif self.brain.directions[stepNum] == 3 and self.rect.x > 50:
                 self.rect.x -= 50
-            elif self.brain.directions[stepNum] == 4 and self.rect.x < 300:
+            elif self.brain.directions[stepNum] == 4 and self.rect.x < 600:
                 self.rect.x += 50
 
             self.brain.step += 1
@@ -399,6 +399,9 @@ def stability(x, y):
     if y == 700 or y == 400:
         stability = 1
 
+    elif x < 0 or x > 700 or y < 0 or y > 800:
+        stability = 0
+
     elif y == 650 or y == 550:
         leftSide = 1
         rightSide = 0
@@ -474,6 +477,25 @@ def stability(x, y):
         stability = 0 if leftSide == 0 else rightSide / 10 ######################################## CHNAGE THIS ##########################
 
 
+    elif y == 350 or y == 200:
+        for t in turtles:
+            if t.rect.y == y:
+                if x > (t.rect.x - ((t.size * 50 - 25) / 2)) and x < (t.rect.x + ((t.size * 50 - 25) / 2)) and t.state == 0:
+                    stability = x / 700
+
+    elif y == 300 or y == 250 or 150:
+        for s in all_sprites:
+            if s.rect.y == y:
+                if s.size == 'short':
+                    if x > (s.rect.x - ((100 - 25) / 2)) and x < (s.rect.x + ((100 - 25) / 2)):
+                        stability = 1 - (x / 700)
+                if s.size == 'medium':
+                    if x > (s.rect.x - ((150 - 25) / 2)) and x < (s.rect.x + ((150 - 25) / 2)):
+                        stability = 1 - (x / 700)
+                if s.size == 'long':
+                    if x > (s.rect.x - ((275 - 25) / 2)) and x < (s.rect.x + ((275 - 25) / 2)):
+                        stability = 1 - (x / 700)
+
     print("STAB at y-cord " + str(y) + "is: " + str(stability))
     return stability
     
@@ -503,24 +525,24 @@ def reset():
 
     for i in range(0, 9):
         if i < 3:
-            all_sprites.add(Log(-200 + 300 * (3 - i), 300, 'short', 62.5, 50, 6))
+            all_sprites.add(Log(-200 + 300 * (3 - i), 300, 'short', 100, 50, 6))
         elif i < 6:
-            all_sprites.add(Log(-300 + 400 * (6 - i), 250, 'long', 150, 50, 8))
+            all_sprites.add(Log(-300 + 400 * (6 - i), 250, 'long', 275, 50, 8))
         elif i < 9:
-            all_sprites.add(Log(-400 + 300 * (9 - i), 150, 'medium', 87.5, 50, 12))
+            all_sprites.add(Log(-400 + 300 * (9 - i), 150, 'medium', 150, 50, 12))
 
     for i in range(0, 8):
             # dive, size, startX, startY, width, height, speed
         if i < 4:
             if i == 2:
-                turtles.add(Turtle(2, 3, 200 * (4 - i), 350, 150, 50, -2))
+                turtles.add(Turtle(2, 3, 200 * (4 - i), 350, 125, 50, -2))
             else:
-                turtles.add(Turtle(1, 3, 200 * (4 - i), 350, 150, 50, -2))
+                turtles.add(Turtle(1, 3, 200 * (4 - i), 350, 125, 50, -2))
         elif i < 8:
             if i == 7:
-                turtles.add(Turtle(2, 2, 175 * (8 - i), 200, 100, 50, -2))
+                turtles.add(Turtle(2, 2, 175 * (8 - i), 200, 75, 50, -2))
             else:
-                turtles.add(Turtle(1, 2, 175 * (8 - i), 200, 100, 50, -2))
+                turtles.add(Turtle(1, 2, 175 * (8 - i), 200, 75, 50, -2))
 
 
 def text_objects(text, font):
@@ -549,7 +571,7 @@ while not done:
 
     # If all frogs are dead, reset game board
     if (Population.frogs_alive == 0):
-        pop.selection()
+        #pop.selection()
         reset()
         time.sleep(300)
         frame_count = 0;
@@ -559,12 +581,10 @@ while not done:
 
     if total_seconds > 10:
         pop.killAll()
-        pop.selection()
+        #pop.selection()
         reset()
         time.sleep(300)
         frame_count = 0;
-
-    #(print (total_seconds) print how many seconds */
 
     message_display('generation: ' + str(pop.generation))
     all_sprites.update()
