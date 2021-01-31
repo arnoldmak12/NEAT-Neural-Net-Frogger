@@ -15,7 +15,7 @@ def generate_sample_data(size):
     return data
 
 
-pop = Population(10, 5, 350, NNData())
+pop = Population(5, 5, 500, NNData())
 
 pop.simulate_generations(100)
 
@@ -57,7 +57,7 @@ for i in range(num_batches):
 print("\n\n", end='\n')
 #pop.simulate_generations(100)
 print("Ending Neural Net:\n")
-pop.print_pop()
+#pop.print_pop()
 input("Finished")
 
 # Now we can feed custom inputs to the NN and see how accurate it is. Note: inputs for NN should be scaled to be within [-5,5]
