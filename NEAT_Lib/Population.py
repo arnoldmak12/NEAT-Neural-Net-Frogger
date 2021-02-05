@@ -1,6 +1,6 @@
 from NeuralNet import NeuralNet
 from NNData import NNData
-from SnakeTest import Snake
+# from SnakeTest import Snake
 from Frogger import Frogger
 import copy as copy
 import numpy as np
