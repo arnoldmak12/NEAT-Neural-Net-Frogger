@@ -5,6 +5,8 @@ from Frogger import Frogger
 import copy as copy
 import numpy as np
 import math
+import pickle
+from os import path
 
 class Population(object):
     def __init__(self, num_inputs, num_outputs, pop_size, data):
@@ -12,24 +14,32 @@ class Population(object):
         self.num_outputs = num_outputs
         self.pop_size = pop_size
         self.data = data
-        master_parent = NeuralNet(num_inputs, num_outputs, data)
-        master_parent.reset_neural_net()
-        self.reference = copy.deepcopy(master_parent)
+        self.reference = NeuralNet(num_inputs, num_outputs, data)
+        self.reference.reset_neural_net()
+        master_parent = self.get_master_parent(num_inputs, num_outputs, data)
         self.networks = [master_parent]
-        for i in range(math.floor(pop_size)):
-            net = copy.deepcopy(master_parent)
+        for i in range(pop_size):
+            net = copy.deepcopy(self.reference)
             net.randomize()
             net.mutate()
             self.networks.append(net)
         self.species = self.assign_pop_to_species(self.networks, [])
 
 
+    def get_master_parent(self, num_inputs, num_outputs, data):
+        if path.exists("neural_net.txt"):
+            old_net = pickle.load(open("neural_net.txt", "rb"))
+            old_net.master_reset_innov()
+            return old_net
+        net = NeuralNet(num_inputs, num_outputs, data)
+        net.reset_neural_net()
+        return net
+        
+        
     def sum_fitness(self, s):
         sum = 0
         for net in s:
             sum += net.fitness
-            if net.fitness < 0:
-                print(sum)
         return sum
 
     def avg_fitness(self, s):
@@ -65,10 +75,13 @@ class Population(object):
                 if not species_found:
                     if(len(s) > 0):
                         rep = s[np.random.randint(0, len(s))]
-                        if(self.calc_difference(net, rep) < self.data.diff_threshold):
+                        diff = self.calc_difference(net, rep)
+                        if(diff < self.data.diff_threshold):
                             s.append(net)
                             species_found = True
                             break
+                else:
+                    break
             if not species_found:
                 species.append([net])
         return species
@@ -78,26 +91,28 @@ class Population(object):
         c1 = p1.find_connection_innov(innov)
         c2 = p2.find_connection_innov(innov)
         if c1 is None:
-            return c2
+            return [c2, p2]
         if c2 is None:
-            return c1
+            return [c1, p1]
         if not c1.enabled and c2.enabled:
-            return c1
+            return [c1, p1]
         if not c2.enabled and c1.enabled:
-            return c2
+            return [c2, p2]
         seed = np.random.random()
         if seed < 0.5:
-            return c1
-        return c2
+            return [c1, p1]
+        return [c2, p2]
 
 
 
     def crossover(self, p1, p2):
         child = copy.deepcopy(self.reference)
-        child.randomize_all_bias()
+        child.copy_bias(p1)
         for i in range(self.data.get_innov() - 1):
-            pot_c = self.determine_connection(p1, p2, i+1)
-            child.handle_new_connection(pot_c)
+            res = self.determine_connection(p1, p2, i+1)
+            child.handle_new_connection(res[0], res[1])
+        if self.data.debug:
+            child.validate_connections()
         return child
 
     
@@ -128,10 +143,10 @@ class Population(object):
         return order
     
     
-    def prepare_next_gen(self):
+    def prepare_next_gen(self, num_parents):
         avg_fit = self.avg_fitness(self.networks)
-        new_pop = self.top_pop(50)
-        num_left = self.pop_size - 50
+        new_pop = self.top_pop(num_parents)
+        num_left = self.pop_size - num_parents
         species_list = self.order_species(avg_fit)
         counter = 0
         for s in species_list:
@@ -141,9 +156,9 @@ class Population(object):
                 num_left -= (num_offspring)
                 if num_left < 0:
                     num_offspring += num_left
-                    print("-----------------------------BREAK (" + str(counter) + ")------------------------------")
                 new_members = []
                 for i in range(num_offspring):
+                    print("Creating member " + str(len(new_pop) + i + 1) + "/" + str(self.pop_size) + "\t", end='\r')
                     parent1 = self.choose_parent(s)
                     parent2 = self.choose_parent(s)
                     res = self.crossover(parent1, parent2)
@@ -152,16 +167,14 @@ class Population(object):
                 if len(new_members) > 0:
                     new_pop.extend(new_members)
             else:
-                self.networks = new_pop
-                self.species = self.assign_pop_to_species(self.networks, [])
-                return
+                break
+        print("\n - Top " + str(counter) + " species survived\n", end='\n')
         self.networks = new_pop
         self.species = self.assign_pop_to_species(self.networks, [])
 
 
 
-    def simulate_generations(self, num_generations):
-        print("\n\n------------------------------\nSimulating " + str(num_generations) + " generations!\n------------------------------\n\n")
+    def simulate_generations(self, num_generations, static_start, print_best):
         for i in range(num_generations):
             frogger = Frogger()
             sum = 0
@@ -170,25 +183,9 @@ class Population(object):
             best_score = -100
             best_net = []
             for net in self.networks:
-                frog = Frogger.Frog(335,700,50,net, frogger.game_data)
+                frog = Frogger.Frog(350,750,50,net, frogger.game_data)
                 frogs.append(frog)
-                #snake = Snake(False, net)
-                #score = snake.new_game()
-                #print(str(score) + "\n")
-                #net.fitness = score
-                #scores.append(score)
-                #sum += score
-                #if score > best_score:
-                    #best_score = score
-                    #best_net = net
-                #frog = Frog(net)
-                #score = frog.simulate_game()
-                #scores.append(score)
-                #sum += score
-                #outputs = net.forward_prop([1,1])
-                #net.fitness = outputs[0].value
-            #print("\nBest performers:")
-            frogger.begin_game(frogs)
+            frogger.begin_game(frogs, static_start)
             for j in range(len(frogs)):
                 self.networks[j].fitness = frogs[j].score
                 if frogs[j].score > best_score:
@@ -198,16 +195,16 @@ class Population(object):
                 max_value = max(scores)
                 max_index = scores.index(max_value)
                 scores[max_index] = -1000000000
-                #print(max_value)
             avg_score = self.avg_fitness(self.networks)
-            best_net.show_net()
-            print("\n\nGeneration " + str(i+1) + " results:\nHighest Score: " + str(best_score) + "\nAverage score: " + str(avg_score) + "\nNum species: " + str(len(self.species)) + "\nNum members: " + str(len(self.networks)))
-            self.prepare_next_gen()
-            print("Finished!")
-            print("\n\nStarting Generation " + str(i+2) + ": Members = " + str(len(self.networks)) + ", Species = " + str(len(self.species)))
-
-            #print("Avg score: " + str(sum/len(self.networks)))
-        print("Done!")
+            if print_best:
+                best_net.show_net()
+            print("-----------------------------------\t\t\t\t\t\t\n       Generation " + str(i+1) + " results\n-----------------------------------\n", end='\n')
+            print("Highest Score: " + str(best_score) + "\nAverage score: " + str(avg_score) + "\nNum species: " + str(len(self.species)) + "\nInnovs tried: " + str(self.data.get_innov()) + "\n")
+            pickle.dump(best_net, open("neural_net.txt", "wb"))
+            if i != num_generations-1:
+                self.prepare_next_gen(math.floor(self.pop_size/10))
+                print("\nStarting Generation " + str(i+2) + ": Species = " + str(len(self.species)) + ", Innovs = " + str(self.data.get_innov()), end='\r')
+        print("Finished simulation!")
     
 
 
@@ -228,14 +225,17 @@ class Population(object):
         tot_diff = 0
         weight_diff = 0
         num_matches = 0
+        innov_dict = {}
         for c1 in net1.connection_list:
-            for c2 in net2.connection_list:
-                if c1.enabled and c2.enabled:
-                    if c1.innov == c2.innov:
-                        num_matches += 1
-                        weight_diff += np.abs(c1.weight - c2.weight)
+            innov_dict[c1.innov] = c1.weight
+        for c2 in net2.connection_list:
+            if c2.innov in innov_dict:
+                con1= net1.find_connection_innov(c2.innov)
+                if con1.enabled and c2.enabled:
+                    num_matches += 1
+                    weight_diff += np.abs(con1.weight - c2.weight)
         tot_diff += (self.data.weight_scale * weight_diff / max(1, num_matches), 100) [num_matches == 0]
-        num_connections = len(net1.connection_list) + len(net2.connection_list)
+        num_connections = net1.num_active_connections() + net2.num_active_connections()
         tot_diff += self.data.struct_scale * (num_connections - 2 * num_matches) / num_connections
         return tot_diff
 
