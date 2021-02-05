@@ -4,6 +4,7 @@ import time
 from NeuralNet import NeuralNet
 from GameData import GameData
 import math
+import numpy as np
 
 class Frogger():
     def __init__(self):
@@ -20,51 +21,62 @@ class Frogger():
         turtleCounter = 0
 
         # Creation of objects
+        stable_vals = self.static_start
+        offset1 = (np.random.randint(-150, 150), 0) [stable_vals]
+        offset2 = (np.random.randint(-150, 150), 0) [stable_vals]
+        offset3 = (np.random.randint(-150, 150), 0) [stable_vals]
+        offset4 = (np.random.randint(-150, 150), 0) [stable_vals]
+        offset5 = (np.random.randint(-150, 150), 0) [stable_vals]
+        dist1 = (np.random.randint(150,250), 150) [stable_vals]
+        dist2 = (np.random.randint(150,250), 150) [stable_vals]
+        dist3 = (np.random.randint(150,250), 150) [stable_vals]
+        dist4 = (np.random.randint(150,250), 150) [stable_vals]
+        dist5 = (np.random.randint(300,400), 300) [stable_vals]
         #(x, y, img, speed, direction, width, height)
         for i in range(0, 12):
             if i < 3:
-                self.game_data.add_all_sprites(self.Car(200 + 150 * (3 - i), 650, 'yellow', 6, 1, 50, 50, self.game_data))
+                self.game_data.add_all_sprites(self.Car(200 + dist1 * (3 - i) + offset1, 650, 'yellow', 6*4, 1, 50, 50, self.game_data))
             elif i < 6:
-                self.game_data.add_all_sprites(self.Car(-300 + 150 * (6 - i), 600, 'dozer', 2, -1, 50, 50, self.game_data))
+                self.game_data.add_all_sprites(self.Car(-300 + dist2 * (6 - i) + offset2, 600, 'dozer', 2*4, -1, 50, 50, self.game_data))
             elif i < 9:
-                self.game_data.add_all_sprites(self.Car(100 + 150 * (9 - i), 550, 'purple', 4, 1, 50, 50, self.game_data))
+                self.game_data.add_all_sprites(self.Car(100 + dist3 * (9 - i) + offset3, 550, 'purple', 4*4, 1, 50, 50, self.game_data))
             elif i < 10:
-                self.game_data.add_all_sprites(self.Car(50 + 150 * (10 - i), 500, 'green', 10, -1, 50, 50, self.game_data))
+                self.game_data.add_all_sprites(self.Car(50 + dist4 * (10 - i) + offset4, 500, 'green', 10*4, -1, 50, 50, self.game_data))
             elif i < 12:
-                self.game_data.add_all_sprites(self.Car(100 + 300 * (12 - i), 450, 'truck', 3, 1, 100, 50, self.game_data))
+                self.game_data.add_all_sprites(self.Car(100 + dist5 * (12 - i) + offset5, 450, 'truck', 3*4, 1, 100, 50, self.game_data))
 
         for i in range(0, 9):
             if i < 3:
-                self.game_data.add_all_sprites(self.Log(-200 + 300 * (3 - i), 300, 'short', 100, 50, 6, self.game_data))
+                self.game_data.add_all_sprites(self.Log(-200 + 350 * (3 - i), 300, 'short', 100, 50, 6*2, self.game_data))
             elif i < 6:
-                self.game_data.add_all_sprites(self.Log(-300 + 400 * (6 - i), 250, 'long', 275, 50, 8, self.game_data))
+                self.game_data.add_all_sprites(self.Log(-300 + 450 * (6 - i), 250, 'long', 275, 50, 8*2, self.game_data))
             elif i < 9:
-                self.game_data.add_all_sprites(self.Log(-400 + 300 * (9 - i), 150, 'medium', 150, 50, 12, self.game_data))
+                self.game_data.add_all_sprites(self.Log(-400 + 350 * (9 - i), 150, 'medium', 150, 50, 12*2, self.game_data))
 
         for i in range(0, 8):
                 # dive, size, startX, startY, width, height, speed
             if i < 4:
                 if i == 2:
-                    self.game_data.add_turtles(self.Turtle(2, 3, 200 * (4 - i), 350, 125, 50, -2, self.game_data))
+                    self.game_data.add_turtles(self.Turtle(2, 3, 250 * (4 - i), 350, 125, 50, -2*4, self.game_data))
                 else:
-                    self.game_data.add_turtles(self.Turtle(1, 3, 200 * (4 - i), 350, 125, 50, -2, self.game_data))
+                    self.game_data.add_turtles(self.Turtle(1, 3, 250 * (4 - i), 350, 125, 50, -2*4, self.game_data))
             elif i < 8:
                 if i == 7:
-                    self.game_data.add_turtles(self.Turtle(2, 2, 175 * (8 - i), 200, 75, 50, -2, self.game_data))
+                    self.game_data.add_turtles(self.Turtle(2, 2, 225 * (8 - i), 200, 75, 50, -2*4, self.game_data))
                 else:
-                    self.game_data.add_turtles(self.Turtle(1, 2, 175 * (8 - i), 200, 75, 50, -2, self.game_data))
+                    self.game_data.add_turtles(self.Turtle(1, 2, 225 * (8 - i), 200, 75, 50, -2*4, self.game_data))
         return
 
 
     def killAll(self):
-        print("-------------- TIME RAN OUT ----- ")
         for i in self.game_data.get_frogs():
             if i.dead is False:
                 i.die()
         return
     
     
-    def begin_game(self, frog_pop):
+    def begin_game(self, frog_pop, static_start):
+        self.static_start = static_start
         self.reset()
         self.game_data.set_frogs_alive(len(frog_pop))
         for f in frog_pop:
@@ -83,14 +95,6 @@ class Frogger():
             if self.game_data.get_frogs_alive() == 0:
                 self.done = True
 
-            
-            self.total_seconds = self.game_data.get_frame_count() // self.fps
-
-            if self.total_seconds > 7:
-                self.killAll()
-                self.done = True
-
-            #message_display('generation: ' + str(pop.generation))
             self.game_data.get_all_sprites().update()
             self.game_data.get_all_sprites().draw(self.screen)
             self.game_data.get_turtles().update()
@@ -122,7 +126,6 @@ class Frogger():
                                 t.image = self.game_data.turtleThreeImg
 
             self.game_data.inc_frame_count()
-        #pygame.quit()
 
 
     def init_game(self):
@@ -139,7 +142,7 @@ class Frogger():
         self.frogsNum = 200  # Number of frogs spawned per generation
         self.done = False   # Application is still running
         self.turtleCounter = 0  # Timer for turtle state
-        self.fps = 20  # Simulation speed (actions per second)
+        self.fps = 15  # Simulation speed (actions per second)
 
 
     # Classes
@@ -200,6 +203,7 @@ class Frogger():
             self.game_data = data
             self.image = pygame.Surface((50, 50))
             self.score = 0
+            self.time_remaining = 60
             self.highest_dist = 0
             self.rect = self.image.get_rect()
             self.image = self.game_data.frogUpImg
@@ -225,16 +229,16 @@ class Frogger():
                 stability = 0
 
             elif y == 100:
-                if x >= 80 and x <= 170:
+                if x >= 55 and x <= 145:
                     stability = 1
 
-                elif x >= 230 and x <= 320:
+                elif x >= 205 and x <= 295:
                     stability = 1
 
-                elif x >= 380 and x <= 470:
+                elif x >= 355 and x <= 445:
                     stability = 1
 
-                elif x >= 530 and x <= 620:
+                elif x >= 505 and x <= 595:
                     stability = 1
 
             elif y == 650 or y == 550:
@@ -322,20 +326,20 @@ class Frogger():
                 for t in self.game_data.get_turtles():
                     if t.rect.y == y:
                         if x > (t.rect.x - ((t.size * 50 - 25) / 2)) and x < (t.rect.x + ((t.size * 50 - 25) / 2)) and t.state == 0:
-                            stability = x / 100
+                            stability = x / 1400.0 + 0.5
 
-            elif y == 300 or y == 250 or 150:
+            elif y == 300 or y == 250 or y == 150:
                 for s in self.game_data.get_all_sprites():
                     if s.rect.y == y:
                         if s.size == 'short':
                             if x > (s.rect.x - ((100 - 25) / 2)) and x < (s.rect.x + ((100 - 25) / 2)):
-                                stability = 1 - ((x-600) / 100)
+                                stability = 1 - (x / 1400.0)
                         if s.size == 'medium':
                             if x > (s.rect.x - ((150 - 25) / 2)) and x < (s.rect.x + ((150 - 25) / 2)):
-                                stability = 1 - ((x-600) / 100)
+                                stability = 1 - (x / 1400.0)
                         if s.size == 'long':
                             if x > (s.rect.x - ((275 - 25) / 2)) and x < (s.rect.x + ((275 - 25) / 2)):
-                                stability = 1 - ((x-600) / 100)
+                                stability = 1 - (x / 1400.0)
 
             if stability > 1:
                 stability = 1
@@ -347,22 +351,41 @@ class Frogger():
         def update(self):
             if self.dead:
                 return
+            self.time_remaining -= 1
+            if self.time_remaining == 0:
+                self.die()
+                return
+            if self.reachedGoal:
+                self.score += (650/10)*self.game_data.get_frame_count()/(4000.0*100)
+                return
+
             self.stabilityUp = self.stability(self.rect.x, self.rect.y - 50)
             self.stabilityDown = self.stability(self.rect.x, self.rect.y + 50)
             self.stabilityRight = self.stability(self.rect.x + 50, self.rect.y)
             self.stabilityLeft = self.stability(self.rect.x - 50, self.rect.y)
             self.stabilityCurrent = self.stability(self.rect.x, self.rect.y)
 
+            stabilityUp2 = self.stability(self.rect.x, self.rect.y - 100)
+            stabilityDown2 = self.stability(self.rect.x, self.rect.y + 100)
+            stabilityRight2 = self.stability(self.rect.x + 100, self.rect.y)
+            stabilityLeft2 = self.stability(self.rect.x - 100, self.rect.y)
+            stabilityDTR = self.stability(self.rect.x + 50, self.rect.y - 50)
+            stabilityDTL = self.stability(self.rect.x - 50, self.rect.y - 50)
+            stabilityDBR = self.stability(self.rect.x + 50, self.rect.y + 50)
+            stabilityDBL = self.stability(self.rect.x - 50, self.rect.y + 50)
+
             inputs = [self.stabilityUp, self.stabilityRight, self.stabilityDown, self.stabilityLeft, self.stabilityCurrent]
-            dist = max(700-self.rect.y, 0)
-            bonus_dist = max(750-self.rect.y, 0)
+
+            extra = [stabilityUp2, stabilityDown2, stabilityRight2, stabilityLeft2, stabilityDTR, stabilityDTL, stabilityDBR, stabilityDBL]
+
+            inputs.extend(extra)
+            dist = max(750-self.rect.y, 0)
             if dist > self.highest_dist:
                 self.highest_dist = dist
-            #distances = [(dist+50)/30.0, dist/30.0, (dist-50)/30.0, dist/30.0, dist/30.0]
-            #inputs.extend(distances)
+                self.time_remaining = 60
             values = self.brain.forward_prop(inputs)
             result = values.index(max(values))
-            bonus = (bonus_dist/10)*self.game_data.get_frame_count()/(4000.0*50)
+            bonus = (dist/10)*self.game_data.get_frame_count()/(4000.0*100)
             if result == 0:
                 self.rect.y -= 50
             elif result == 1:
@@ -372,10 +395,9 @@ class Frogger():
             elif result == 3:
                 self.rect.x -= 50
             
-            if self.rect.x < 0 or self.rect.x > 700 or self.rect.y < 0 or self.rect.y > 800:
+            if self.rect.x < 0 or self.rect.x >= 700 or self.rect.y < 0 or self.rect.y >= 800:
                 self.die()
 
-            #if result != 4:
             self.score += bonus
 
             # If frog is in the river
@@ -392,15 +414,14 @@ class Frogger():
                 if crash == False:
                     self.die()
             elif self.rect.y == 100 and self.dead == False:
-                self.fitness = 13
-                self.dead = True
-                self.frogs_alive -= 1
-
-            self.stabilityUp = self.stability(self.rect.x, self.rect.y - 50)
-            self.stabilityDown = self.stability(self.rect.x, self.rect.y + 50)
-            self.stabilityRight = self.stability(self.rect.x + 50, self.rect.y)
-            self.stabilityLeft = self.stability(self.rect.x - 50, self.rect.y)
-            self.stabilityCurrent = self.stability(self.rect.x, self.rect.y)
+                if self.stability(self.rect.x, self.rect.y) == 1:
+                    self.score += 200.0 / self.game_data.get_frame_count()
+                    self.reachedGoal = True
+                else:
+                    self.image = self.game_data.frogDead
+                    self.dead = True
+                    self.score += self.highest_dist/50.0
+                    self.game_data.sub_frogs_alive()
 
         # If the frog dies
         def die(self):
@@ -409,8 +430,6 @@ class Frogger():
             self.dead = True
             self.rect.x = -100
             self.game_data.sub_frogs_alive()
-            #print('Frogs alive: ' + str(self.game_data.get_frogs_alive()))
-            #print('Frogs Score: ' + str(self.score))
 
 
     class Log(pygame.sprite.Sprite):
@@ -502,24 +521,7 @@ class Frogger():
                     f.die()
             return
 
-    # Randomly mutates the direction vectors of the given frog
-
-
-    
-
    
-
-
-    def text_objects(text, font):
-        textSurface = font.render(text, True, white)
-        return textSurface, textSurface.get_rect()
-
-
-    def message_display(text):
-        largeText = pygame.font.Font('freesansbold.ttf', 24)
-        TextSurf, TextRect = text_objects(text, largeText)
-        TextRect.center = ((display_width / 2), 20)
-        screen.blit(TextSurf, TextRect)
 
 
     
